@@ -2,9 +2,10 @@ package main.java.jsData;
 
 
 import com.google.gson.annotations.SerializedName;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
+@Getter @Setter
 public class Abilities {
     @SerializedName("E")
     public E e;
@@ -16,4 +17,16 @@ public class Abilities {
     public R r;
     @SerializedName("W")
     public W w;
+
+    @Override
+    public String toString() {
+        return "Abilities: {" +
+                "" + e +
+                ", " + passive +
+                ", " + q +
+                ", " + r +
+                ", " + w +
+                '}';
+    }
 }
+
