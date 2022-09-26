@@ -1,12 +1,13 @@
 package pojo.allGameData;
 
-import com.google.gson.annotations.SerializedName;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 import java.util.ArrayList;
 
 @Data
 public class Events {
-    @SerializedName("Events")
+
+    @JsonProperty("Events")
     public ArrayList<Event> events;
 }

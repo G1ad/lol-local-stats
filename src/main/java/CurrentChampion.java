@@ -1,18 +1,13 @@
 import lombok.Data;
-import pojo.ChampionInfo.*;
 
 import java.io.IOException;
-import java.util.ArrayList;
 
 @Data
-public class CurrentChampion extends CallSuprema{
+public class CurrentChampion {
 
-    EnemyOne enemyOne = new EnemyOne();
 
+    /*
     Root mainChampion = gson.fromJson(parsedChampionsReader.get(getCurrentChampion()), Root.class);
-
-    Abilities abilities = gson.fromJson(parsedChampionsReader.get(getCurrentChampion()).getAsJsonObject().
-            get("abilities").getAsJsonObject(), Abilities.class);
 
     Q q = gson.fromJson(parsedChampionsReader.get(getCurrentChampion()).getAsJsonObject().get("abilities").
         getAsJsonObject().get("Q").getAsJsonArray().get(0),Q.class);
@@ -49,7 +44,7 @@ public class CurrentChampion extends CallSuprema{
         return result;
     }
 
-/*
+
     Modifier wDamage = gson.fromJson(parsedChampionsReader.get(getCurrentChampion()).getAsJsonObject().get("abilities").
         getAsJsonObject().get("W").getAsJsonArray().get(0).getAsJsonObject().get("effects").getAsJsonArray().get(0).
         getAsJsonObject().get("leveling").getAsJsonArray().get(0).getAsJsonObject().get("modifiers").

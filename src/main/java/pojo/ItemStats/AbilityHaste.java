@@ -1,8 +1,10 @@
 package pojo.ItemStats;
 
-import lombok.Getter;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.Data;
 
-@Getter
+@Data
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class AbilityHaste {
     private double flat;
     private double percent;
@@ -11,15 +13,4 @@ public class AbilityHaste {
     private double percentBase;
     private double percentBonus;
 
-    @Override
-    public String toString() {
-        return "AbilityHaste{" +
-                "flat=" + flat +
-                ", percent=" + percent +
-                ", perLevel=" + perLevel +
-                ", percentPerLevel=" + percentPerLevel +
-                ", percentBase=" + percentBase +
-                ", percentBonus=" + percentBonus +
-                '}';
-    }
 }

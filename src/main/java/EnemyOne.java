@@ -1,13 +1,4 @@
-import lombok.Data;
-import pojo.ChampionInfo.Armor;
-import pojo.ChampionInfo.Root;
-import pojo.allGameData.Item;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
-
+/*
 @Data
 public class EnemyOne extends CallSuprema {
 
@@ -126,3 +117,4 @@ public class EnemyOne extends CallSuprema {
     public EnemyOne() throws IOException {
     }
 }
+*/

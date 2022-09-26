@@ -1,9 +1,12 @@
 package pojo.allGameData;
 
-import lombok.Getter;
-import lombok.Setter;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.Data;
 
-@Getter @Setter
+import java.io.IOException;
+
+@Data
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ActivePlayer {
 
     public Abilities abilities;
@@ -14,16 +17,13 @@ public class ActivePlayer {
     public String summonerName;
     public boolean teamRelativeColors;
 
-    @Override
-    public String toString() {
-        return "ActivePlayer{" +
-                "abilities=" + abilities +
-                ", championStats=" + championStats +
-                ", currentGold=" + currentGold +
-                ", fullRunes=" + fullRunes +
-                ", level=" + level +
-                ", summonerName='" + summonerName + '\'' +
-                ", teamRelativeColors=" + teamRelativeColors +
-                '}';
+
+
+    //JsonObject parsedJson = JsonParser.parseString(ApiManager.makeApiCall(Config.URL_LOCAL)).getAsJsonObject();
+    //JsonObject parsedActivePlayer = parsedJson.get("activePlayer").getAsJsonObject();
+
+
+    public ActivePlayer() throws IOException {
     }
 }
+

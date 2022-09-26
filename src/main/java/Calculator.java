@@ -1,14 +1,10 @@
-
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import pojo.ChampionInfo.Modifier;
-
 import java.io.IOException;
 
-public class Calculator extends CurrentChampion {
+public class Calculator{
 
-    EnemyOne enemyOne = new EnemyOne();
-/*
+
+
+    /*
     public double getTotalDamage(){
         return getDamageQ()+getDamageW()+getDamageE()+getDamageR();
     }

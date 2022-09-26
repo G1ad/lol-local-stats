@@ -1,33 +1,23 @@
 package pojo.allGameData;
 
 
-import com.google.gson.annotations.SerializedName;
-import lombok.Getter;
-import lombok.Setter;
-@Getter @Setter
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Data;
+
+@Data
 public class Abilities {
 
-    @SerializedName("Passive")
+    @JsonProperty("Passive")
     public Passive passive;
-    @SerializedName("Q")
+    @JsonProperty("Q")
     public Q q;
-    @SerializedName("E")
+    @JsonProperty("E")
     public E e;
-    @SerializedName("W")
+    @JsonProperty("W")
     public W w;
-    @SerializedName("R")
+    @JsonProperty("R")
     public R r;
 
-
-    @Override
-    public String toString() {
-        return "Abilities:" +
-                "\n" + passive +
-                ",\n" + q +
-                ",\n" + w +
-                ",\n" + e +
-                ",\n" + r +
-                '}';
     }
-}
+
 
