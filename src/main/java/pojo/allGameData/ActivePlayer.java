@@ -17,12 +17,6 @@ public class ActivePlayer {
     public String summonerName;
     public boolean teamRelativeColors;
 
-
-
-    //JsonObject parsedJson = JsonParser.parseString(ApiManager.makeApiCall(Config.URL_LOCAL)).getAsJsonObject();
-    //JsonObject parsedActivePlayer = parsedJson.get("activePlayer").getAsJsonObject();
-
-
     public ActivePlayer() throws IOException {
     }
 }

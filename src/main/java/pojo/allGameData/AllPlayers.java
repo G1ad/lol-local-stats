@@ -1,8 +1,10 @@
 package pojo.allGameData;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
+
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -11,7 +13,7 @@ public class AllPlayers {
     public String championName;
     public boolean isBot;
     public boolean isDead;
-    public ArrayList<Item> items;
+    public List<Item> items;
     public int level;
     public String position;
     public String rawChampionName;
@@ -24,18 +26,6 @@ public class AllPlayers {
     public String team;
 
 
-    /*
-    public JsonElement getPlayer(int i) {
-
-        JsonElement player = allPlayers.get(i);
-        return player;
-    }
-
-    public JsonElement getChampionName(int i) {
-
-        JsonElement name = allPlayers.get(i).getAsJsonObject().get("championName");
-        return name;
-    }*/
 
     public AllPlayers() throws IOException {}
 }

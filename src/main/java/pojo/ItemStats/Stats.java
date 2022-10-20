@@ -56,5 +56,6 @@ public class Stats {
     private AbilityHaste abilityHaste;
     private Omnivamp omnivamp;
     private Tenacity tenacity;
+
 }
 

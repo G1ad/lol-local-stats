@@ -1,15 +1,15 @@
 package pojo.allGameData;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import lombok.Data;
-import org.jetbrains.annotations.NotNull;
+import lombok.Getter;
+import lombok.Setter;
 
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.List;
-
-@Data
+@Getter
+@Setter
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Item {
+
+
 
     public String displayName;
     public int itemID;
@@ -21,8 +21,19 @@ public class Item {
     public String rawDescription;
     public String rawDisplayName;
 
-    //List <Item> itemMaster = gson.fromJson(parsedPlayer0.get("items"), itemsTypeToken);
-    //List <Item> itemPlayer = gson.fromJson(parsedPlayer1.get("items"), itemsTypeToken);
-
+    @Override
+    public String toString() {
+        return "Item {"  +
+                "displayName='" + displayName + '\'' +
+                ", itemID=" + itemID +
+                ", count=" + count +
+                ", slot=" + slot +
+                ", price=" + price +
+                ", canUse=" + canUse +
+                ", consumable=" + consumable +
+                ", rawDescription='" + rawDescription + '\'' +
+                ", rawDisplayName='" + rawDisplayName + '\'' +
+                '}';
+    }
 }
 
