@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.Data;
 import pojo.ChampionInfo.Root;
 import pojo.ItemStats.Stats;
 import pojo.allGameData.*;
@@ -13,6 +14,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+@Data
 public class Game {
 
     private ActivePlayer activePlayer;
@@ -24,25 +26,27 @@ public class Game {
     private List<Root> championInfo;
     private Root rootChamp;
     private Abilities abilities;
-    private Root prova;
+    private ObjectMapper mapper;
+    private static JsonNode CHAMPION_JSON = null;
+    private static JsonNode ITEMS_JSON = null;
 
     public Game() throws IOException {
         updateGame();
     }
 
     public void updateGame() throws IOException {
-        //mapper declaration
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.configure(DeserializationFeature.USE_JAVA_ARRAY_FOR_JSON_ARRAY, true);
-        //list of all lol items
-        File fileItems = new File(Config.FILE_PATH_ITEMS);
-        JsonNode ITEMS_JSON = mapper.readValue(fileItems,JsonNode.class);
+
+        mapper = new ObjectMapper();
         //list of all lol champions
         File fileChampions = new File(Config.FILE_PATH_CHAMPIONS);
-        JsonNode CHAMPIONS_JSON = mapper.readValue(fileChampions,JsonNode.class);
+        CHAMPION_JSON = mapper.readValue(fileChampions,JsonNode.class);
+        //list of all lol items
+        File fileItems = new File(Config.FILE_PATH_ITEMS);
+        ITEMS_JSON = mapper.readValue(fileItems,JsonNode.class);
+
+        mapper.configure(DeserializationFeature.USE_JAVA_ARRAY_FOR_JSON_ARRAY, true);
         // get game data and put them into a JsonNode
         JsonNode gameJsonNode = mapper.readTree(ApiManager.makeApiCall(Config.URL_LOCAL));
-
         //get active player
         this.activePlayer = mapper.treeToValue(gameJsonNode.get("activePlayer"), ActivePlayer.class);
         //get abilities from activePlayer
@@ -65,15 +69,15 @@ public class Game {
         //getting stats of every item of each champion
         this.statsList = mapper.convertValue(getGameItemsStats(ITEMS_JSON, gameItems), new TypeReference<List<Stats>>(){});
         //getting full description of a champion
-        this.championInfo = mapper.convertValue(getFullChampionInfo(CHAMPIONS_JSON, allPlayers), new TypeReference<List<Root>>(){});
+        this.championInfo = mapper.convertValue(getFullChampionInfo(CHAMPION_JSON, allPlayers), new TypeReference<List<Root>>(){});
         //getting full info about main champion since the position is different each game
-        JsonNode root = mapper.readValue(String.valueOf(CHAMPIONS_JSON.get(rootChampionName())),JsonNode.class);
+        JsonNode root = mapper.readValue(String.valueOf(CHAMPION_JSON.get(rootChampionName())),JsonNode.class);
         this.rootChamp = mapper.treeToValue(root,Root.class);
-        JsonNode prova = mapper.readValue((String.valueOf(CHAMPIONS_JSON.get("Jayce"))), JsonNode.class);
-        this.prova = mapper.treeToValue(prova,Root.class);
+
     }
 
     public List<JsonNode> getGameItemsStats(JsonNode node, List<List<Item>> item) {
+
         List<JsonNode> listItem = new ArrayList<>();
         for(int i = 0; i < item.size(); i++) {
             for(int j = 0; j < item.get(i).size(); j++) {
@@ -120,23 +124,28 @@ public class Game {
     public List<Stats> getStatsList() {
         return statsList;
     }
-    public List<Root> getChampionInfo() {
-        return championInfo;
-    }
+    public List<Root> getChampionInfo() {return championInfo;}
     public Root getRootChamp() {
         return rootChamp;
-    }
-    public Root getProva() {
-        return prova;
-    }
-
-    public void setProva(Root prova) {
-        this.prova = prova;
     }
     public Abilities getAbilities() {
         return abilities;
     }
+    public static JsonNode getChampionJson() {
+        return CHAMPION_JSON;
+    }
 
+    public static void setChampionJson(JsonNode championJson) {
+        CHAMPION_JSON = championJson;
+    }
+
+    public static JsonNode getItemsJson() {
+        return ITEMS_JSON;
+    }
+
+    public static void setItemsJson(JsonNode itemsJson) {
+        ITEMS_JSON = itemsJson;
+    }
     public void setAbilities(Abilities abilities) {
         this.abilities = abilities;
     }

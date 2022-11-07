@@ -1,248 +1,242 @@
-import pojo.ChampionInfo.E;
-import pojo.ChampionInfo.Q;
-import pojo.ChampionInfo.R;
-import pojo.ChampionInfo.W;
+import lombok.Data;
+import pojo.ChampionInfo.*;
+import pojo.allGameData.Item;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
-public class Calculator extends Game{
+@Data
+public class Calculator {
 
-    double AD = getActivePlayer().getChampionStats().getAttackDamage();
-    double AP = getActivePlayer().getChampionStats().getAbilityPower();
-    double lethality = getActivePlayer().getChampionStats().getArmorPenetrationFlat();
-    double armorPen = getActivePlayer().getChampionStats().getArmorPenetrationPercent();
+    private Game game;
 
+    private double AD;
+    private double AP;
+    private double lethality;
+    private double armorPen;
+    //private final DecimalFormat df = new DecimalFormat("0.00");
+    //SwingGui gui;
 
-    public Calculator() throws IOException {
+    public Calculator(Game game) throws IOException {
+        this.game = game;
+        AD = game.getActivePlayer().getChampionStats().getAttackDamage();
+        AP = game.getActivePlayer().getChampionStats().getAbilityPower();
+        lethality = game.getActivePlayer().getChampionStats().getArmorPenetrationFlat();
+        armorPen = game.getActivePlayer().getChampionStats().getArmorPenetrationPercent();
     }
 
-    public double flatQ() {
-        double totalDamage = getAbilityBaseDamage(Q.class) + flatDamage(Q.class);
-        return Math.round(totalDamage);
-    }
+    public String totalDamage(int enemy) throws IOException {
 
-    public double flatW(){
-        double totalDamage = getAbilityBaseDamage(W.class) + flatDamage(W.class);
-        return Math.round(totalDamage);
+        String champName = game.getAllPlayers().get(enemy).getChampionName();
+        String team = "";
 
-    }
-
-    public double flatE(){
-        double totalDamage = getAbilityBaseDamage(E.class) + flatDamage(E.class);
-        return Math.round(totalDamage);
-    }
-
-    public double flatR(){
-        double totalDamage = getAbilityBaseDamage(R.class) + flatDamage(R.class);
-        return Math.round(totalDamage);
-    }
-
-    public <T> double flatDamage(Class<T> clazz){
-
-        if(getScalingUnit(clazz).contains("% bonus AD")){
-            return (bonusAD() * getScalingValue(clazz)) /100;
-        }else if(getScalingUnit(clazz).contains("% AD")){
-            return (AD * getScalingValue(clazz)) /100;
-        } else if(getScalingUnit(clazz).contains("%  of target's current health")) {
-            return (AP * getScalingValue(clazz));
+        //Getting info about which side is main Champion
+        if(champName == game.rootChampionName()){
+            team = game.getAllPlayers().get(enemy).getTeam();
         }
-        return 0;
+        //returning nothing if champions are the same team as main
+        if(game.getAllPlayers().get(enemy).getTeam() == team){
+            return "";
+        }
+
+        String totalDamage = getDamage(Q.class,enemy) + "\t" + getDamage(W.class, enemy) + "\n" +
+                getDamage(E.class, enemy) + "\t" + getDamage(R.class, enemy);
+
+        return champName + "\n" + totalDamage;
     }
 
-    public <T> double getAbilityBaseDamage(Class <T> clazz){
+    public <T> String getDamage(Class<T> clazz , int enemy){
 
-        int qLevel = getActivePlayer().abilities.q.getAbilityLevel();
-        int wLevel = getActivePlayer().abilities.w.getAbilityLevel();
-        int eLevel = getActivePlayer().abilities.e.getAbilityLevel();
-        int rLevel = getActivePlayer().abilities.r.getAbilityLevel();
+        String error = "Impossible calculate damage";
+        String enemyChampion = game.getAllPlayers().get(enemy).getChampionName();
 
-        if(clazz == Q.class){
-            if(stringLeveling(Q.class).matches("\\[\\]")){
-                return getRootChamp().abilities.q.get(0).effects.
-                        get(1).leveling.get(0).modifiers.get(0).getValues().get(qLevel-1);
-            }return getRootChamp().abilities.q.get(0).effects.
-                    get(0).leveling.get(0).modifiers.get(0).getValues().get(qLevel-1);
+        String damageTypeQ = (String) game.getRootChamp().abilities.q.get(0).getDamageType();
+        String damageTypeW = (String) game.getRootChamp().abilities.w.get(0).getDamageType();
+        String damageTypeE = (String) game.getRootChamp().abilities.e.get(0).getDamageType();
+        String damageTypeR = (String) game.getRootChamp().abilities.r.get(0).getDamageType();
 
-        } else if(clazz == W.class) {
-            if(stringLeveling(W.class).matches("\\[\\]")){
-                return getRootChamp().abilities.w.get(0).effects.
-                        get(1).leveling.get(0).modifiers.get(0).getValues().get(qLevel-1);
-            }return getRootChamp().abilities.w.get(0).effects.
-                    get(0).leveling.get(0).modifiers.get(0).getValues().get(qLevel-1);
+        //Armor
+        double damageAdDouble = getChampAbilityDamage(clazz)/
+                (1 + (getEnemyResistance(enemy,Armor.class) / 100f));
+        String damageAD = String.valueOf(getChampAbilityDamage(clazz)/
+                (1 + (getEnemyResistance(enemy,Armor.class) / 100f)));
+        //Magic Resistance
+        double damageApDouble = getChampAbilityDamage(clazz)/
+                (1 + (getEnemyResistance(enemy,MagicResistance.class) / 100f));
+        String damageAP = String.valueOf(getChampAbilityDamage(clazz)/
+                (1 + (getEnemyResistance(enemy,MagicResistance.class) / 100f)));
+        //Q
+        if(damageTypeQ == null){
+            if(clazz == Q.class)
+                return "Q: 0";
+        }else if(damageTypeQ.equals("PHYSICAL_DAMAGE") && clazz == Q.class) {
+            return String.format("Q: " +"%.5s",damageAD);
+        }else if(damageTypeQ.equals("MAGIC_DAMAGE") && clazz == Q.class) {
+            return String.format("Q: " +"%.5s",damageAP);}
+        //W
+       if(damageTypeW == null){
+           if(clazz == W.class)
+            return "W: 0";
+        }else if(damageTypeW.equals("PHYSICAL_DAMAGE") && clazz == W.class){
+           return String.format("W: " +" %.5s",damageAD);}
+       else if(damageTypeW.equals("MAGIC_DAMAGE") && clazz == W.class) {
+           return String.format("W: " +"%.5s",damageAP);}
+        //E
+        if(damageTypeE == null) {
+            if(clazz == E.class)
+                return "E: 0";
+        }else if(damageTypeE.equals("PHYSICAL_DAMAGE") && clazz == E.class){
+            return String.format("E: " +" %.5s",damageAD);
+        }else if(damageTypeE.equals("MAGIC_DAMAGE") && clazz == E.class ){
+            if(game.getRootChamp().getId() == 34){
+                return String.format("E: " +"%.5s/%.5s",damageAP,damageApDouble*2);}
+        return String.format("E: " +"%.5s",damageAP);}
+        //R
+        if(damageTypeR == null) {
+            if(clazz == R.class)
+                return "R: 0";
+        }else if(damageTypeR.equals("PHYSICAL_DAMAGE") && clazz == R.class ){
+            return String.format("R: " +" %.5s",damageAD);
+        }else if(damageTypeR.equals("MAGIC_DAMAGE") && clazz == R.class ){
+            return String.format("R: " +"%.5s",damageAP);}
 
-        } else if(clazz == E.class) {
-            if(stringLeveling(E.class).matches("\\[\\]")){
-                return getRootChamp().abilities.e.get(0).effects.
-                        get(1).leveling.get(0).modifiers.get(0).getValues().get(qLevel-1);
-            }return getRootChamp().abilities.e.get(0).effects.
-                    get(0).leveling.get(0).modifiers.get(0).getValues().get(qLevel-1);
-
-        }else if(clazz == R.class){
-            if(stringLeveling(R.class).matches("\\[\\]")){
-                return getRootChamp().abilities.r.get(0).effects.
-                        get(1).leveling.get(0).modifiers.get(0).getValues().get(qLevel-1);
-            }return getRootChamp().abilities.r.get(0).effects.
-                    get(0).leveling.get(0).modifiers.get(0).getValues().get(qLevel-1);
-        }
-        return 0;
-
-    }
-
-    public <T> double getScalingValue(Class<T> clazz){
-
-        int qLevel = getActivePlayer().abilities.q.getAbilityLevel();
-
-
-        if(clazz == Q.class){
-            if(stringLeveling(Q.class).matches("\\[\\]")){
-                return getRootChamp().abilities.q.get(0).effects.get(1).leveling.get(0).modifiers.get(1).values.get(0);
-            //}else if(stringLeveling(Q.class).contains("")) {
-                //return getRootChamp().abilities.q.get(0).effects.get(0).leveling.get(0).modifiers.get(1).values.get(0);
-            }else if(stringLeveling(Q.class).matches("\\D+")){
-                return getRootChamp().abilities.q.get(0).effects.get(1).leveling.get(0).modifiers.get(0).values.get(qLevel-1);
-            }
-
-        } else if(clazz == W.class) {
-            if(stringLeveling(W.class).matches("\\[\\]")){
-                return getRootChamp().abilities.w.get(0).effects.get(1).leveling.get(0).modifiers.get(1).values.get(0);
-            }return getRootChamp().abilities.w.get(0).effects.get(0).leveling.get(0).modifiers.get(1).values.get(0);
-
-        } else if(clazz == E.class) {
-            if(stringLeveling(E.class).matches("\\[\\]")){
-                return getRootChamp().abilities.e.get(0).effects.get(1).leveling.get(0).modifiers.get(1).values.get(0);
-            }return getRootChamp().abilities.e.get(0).effects.get(0).leveling.get(0).modifiers.get(1).values.get(0);
-
-        }else if(clazz == R.class){
-            if(stringLeveling(R.class).matches("\\[\\]")){
-                return getRootChamp().abilities.r.get(0).effects.get(1).leveling.get(0).modifiers.get(1).values.get(0);
-            }return getRootChamp().abilities.r.get(0).effects.get(0).leveling.get(0).modifiers.get(1).values.get(0);
-        }
-            return 0;
-    }
-
-    public <T> String getScalingUnit(Class<T> clazz){
-        String error = "getScalingUnit() error";
-
-        if(clazz == Q.class){
-            if(stringLeveling(Q.class).matches("\\[\\]")){
-                return getRootChamp().abilities.q.get(0).effects.get(1).leveling.get(0).modifiers.get(1).units.get(0);
-            }return getRootChamp().abilities.q.get(0).effects.get(0).leveling.get(0).modifiers.get(1).units.get(0);
-
-        }else if(clazz == W.class) {
-            if(stringLeveling(W.class).matches("\\[\\]")){
-                return getRootChamp().abilities.w.get(0).effects.get(1).leveling.get(0).modifiers.get(1).units.get(0);
-            }return getRootChamp().abilities.w.get(0).effects.get(0).leveling.get(0).modifiers.get(1).units.get(0);
-
-        }else if(clazz == E.class) {
-            if(stringLeveling(E.class).matches("\\[\\]")){
-                return getRootChamp().abilities.e.get(0).effects.get(1).leveling.get(0).modifiers.get(1).units.get(0);
-            }return getRootChamp().abilities.e.get(0).effects.get(0).leveling.get(0).modifiers.get(1).units.get(0);
-
-        }else if(clazz == R.class){
-            if(stringLeveling(R.class).matches("\\[\\]")){
-                return getRootChamp().abilities.r.get(0).effects.get(1).leveling.get(0).modifiers.get(1).units.get(0);
-            }return getRootChamp().abilities.r.get(0).effects.get(0).leveling.get(0).modifiers.get(1).units.get(0);
-        }
         return error;
+    }
+
+
+    public <T> double getChampAbilityDamage(Class <T> clazz){
+        int qLevel = game.getActivePlayer().abilities.q.getAbilityLevel();
+        int wLevel = game.getActivePlayer().abilities.w.getAbilityLevel();
+        int eLevel = game.getActivePlayer().abilities.e.getAbilityLevel();
+        int rLevel = game.getActivePlayer().abilities.r.getAbilityLevel();
+        //Anivia
+        if(game.getRootChamp().getId() == 34){
+            if(clazz == Q.class) {
+                List<Double> damage = Arrays.asList(50.0, 70.0, 90.0, 110.0, 130.0);
+                List<Double> detonationDamage = Arrays.asList(50.0, 70.0, 90.0, 110.0, 130.0);
+                double scaling = (AP * 25) / 100;
+                double finalDamage = damage.get(qLevel-1) + scaling;
+                    return finalDamage;
+            } else if(clazz == W.class) {
+               List <Double> width = Arrays.asList(600.0, 700.0, 800.0, 900.0, 1000.0);
+                    return width.get(wLevel-1);
+            }else if(clazz == E.class){
+                List<Double> damageX = Arrays.asList(50.0, 75.0, 100.0, 125.0, 150.0);
+                List<Double> damageY = Arrays.asList(100.0, 150.0, 200.0, 250.0, 300.0);
+                double scalingX = (AP * 60) /100;
+                double scalingY = (AP * 120) /100;
+                double finalDamageX = damageX.get(eLevel-1) + scalingX;
+                double finalDamageY = damageY.get(eLevel-1) + scalingY;
+                    return finalDamageX; //+ finalDamageY;
+            }else if(clazz == R.class) {
+                List<Double> damage = Arrays.asList(90.0, 135.0, 180.0);
+                double scaling = (AP * 37.5) /100;
+                double finalDamage = damage.get(rLevel-1) + scaling;
+                    return finalDamage;
+            }
+        }
+        //Ezreal
+        if(game.getRootChamp().getId() == 81){
+            if(clazz == Q.class) {
+                List<Double> damage = Arrays.asList(20.0, 45.0, 70.0, 95.0, 120.0);
+                double scaling = ((AD * 130) /100) + ((AP * 15) /100);
+                double finalDamage = damage.get(qLevel-1) + scaling;
+                    return finalDamage;
+            }if(clazz == W.class) {
+                List<Double> damage = Arrays.asList(80.0, 135.0, 190.0, 245.0, 300.0);
+                double scaling = ((bonusAD() * 60) /100) +((AP * 70) / 100);
+                double finalDamage = damage.get(wLevel-1) + scaling;
+                    return finalDamage;
+            }if(clazz == E.class)  {
+                List<Double> damage = Arrays.asList(80.0, 130.0, 180.0, 230.0, 280.0);
+                double scaling = ((bonusAD() * 50) /100) + ((AP * 75) /100);
+                double finalDamage = damage.get(eLevel-1) + scaling;
+                    return finalDamage;
+            }if(clazz == R.class) {
+                List<Double> damage = Arrays.asList(350.0, 500.0, 650.0);
+                double scaling = ((bonusAD() * 100) /100) + ((AP * 90) /100);
+                double finalDamage = damage.get(rLevel-1) + scaling;
+                    return finalDamage;
+            }
+        }
+        return 0;
     }
 
     public double bonusAD(){
 
-        int currentLevel = getActivePlayer().getLevel();
-        double attackDamage  = getRootChamp().stats.attackDamage.getFlat();
-        double attackDamageGrowth = getRootChamp().stats.attackDamage.getPerLevel();
+        int currentLevel = game.getActivePlayer().getLevel();
+        double attackDamage  = game.getRootChamp().stats.attackDamage.getFlat();
+        double attackDamageGrowth = game.getRootChamp().stats.attackDamage.getPerLevel();
         double esponente = Math.pow(currentLevel,2);
         double formula = (7/400f * esponente + 267/400f * currentLevel - 137/200f);
         double statIncreaseAttackDamage = attackDamage + attackDamageGrowth * formula;
-        double bonusAD = (getActivePlayer().championStats.attackDamage - statIncreaseAttackDamage);
+        double bonusAD = (game.getActivePlayer().championStats.attackDamage - statIncreaseAttackDamage);
 
         return Math.round(bonusAD);
     }
 
 
-    public <T> String stringLeveling(Class<T> clazz){
+    public <T> double getEnemyBonusResistance(int i, Class<T>clazz){
 
-        String error = "stringLevelingClass() error";
-        if(clazz == Q.class) {
-            return String.valueOf(getRootChamp().abilities.q.get(0).effects.get(0).leveling);
-        } else if(clazz == W.class) {
-            return String.valueOf(getRootChamp().abilities.w.get(0).effects.get(0).leveling);
-        } else if(clazz == E.class) {
-            return String.valueOf(getRootChamp().abilities.e.get(0).effects.get(0).leveling);
-        } else if(clazz == R.class) {
-            return String.valueOf(getRootChamp().abilities.r.get(0).effects.get(0).leveling);
+        List<String> listItem = new ArrayList<>();
+        List<Double> doubleList = new ArrayList<>();
+        double sum = 0;
+
+        if(clazz == null){
+            return 0;
         }
-        return error;
+        if(clazz == Armor.class){
+            for(Item item : game.getAllPlayers().get(i).getItems()){
+                listItem.add(String.valueOf(game.getItemsJson().get(String.valueOf(item.getItemID())).
+                        get("stats").get("armor").get("flat")));}
+        }
+        if(clazz == MagicResistance.class){
+            for(Item item : game.getAllPlayers().get(i).getItems()){
+                listItem.add(String.valueOf(game.getItemsJson().get(String.valueOf(item.getItemID())).
+                        get("stats").get("magicResistance").get("flat")));}
+        }
+        if(clazz == Health.class){
+            for(Item item : game.getAllPlayers().get(i).getItems()){
+                listItem.add(String.valueOf(game.getItemsJson().get(String.valueOf(item.getItemID())).
+                        get("stats").get("health").get("flat")));}
+        }
+
+        for(String s : listItem){
+            doubleList.add(Double.valueOf(s));
+        }
+        for(Double d : doubleList){
+            sum+=d;
+        }
+        return sum;
     }
+
+    public <T> double getEnemyResistance(int enemy, Class <T>clazz){
+
+        int level = game.getAllPlayers().get(enemy).getLevel();
+        double statX = 0;
+        double statY = 0;
+
+        if(clazz == null){
+            return 0;
+        }
+        if(clazz == Armor.class){
+            statX = game.getChampionInfo().get(enemy).getStats().armor.getFlat();
+            statY = game.getChampionInfo().get(enemy).getStats().armor.getPerLevel();
+        }
+        if(clazz == MagicResistance.class){
+            statX = game.getChampionInfo().get(enemy).getStats().magicResistance.getFlat();
+            statY = game.getChampionInfo().get(enemy).getStats().magicResistance.getPerLevel();
+        }
+        if(clazz == Health.class){
+            statX = game.getChampionInfo().get(enemy).getStats().health.getFlat();
+            statY = game.getChampionInfo().get(enemy).getStats().health.getPerLevel();
+        }
+
+        double esponente = Math.pow(level,2);
+        double formula = (7/400f * esponente + 267/400f * level - 137/200f);
+        double stat = statX + statY * formula;
+        double totalStat = stat + getEnemyBonusResistance(enemy,clazz);
+            return Math.round(totalStat);}
 }
-
-
-
-/*
-
-    public double getTotalDamage(){
-        return getDamageQ()+getDamageW()+getDamageE()+getDamageR();
-    }
-
-    public double getDamageQ(){
-
-        double realDamage = flatQ()/(1 + (enemyOne.getEnemyOneMagicResistance() / 100f));
-
-        return realDamage;
-    }*/
-
-/*
-    public double getDamageW(){
-
-        double realDamage = flatW()/(1 + (enemyOne.getEnemyOneMagicResistance() / 100f));
-
-        return realDamage;
-
-    }
-
-    public double getDamageE(){
-
-        double realDamage = flatE()/(1 + (enemyOne.getEnemyOneMagicResistance() / 100f));
-
-        return realDamage;
-
-    }
-    public double getDamageR(){
-
-        double realDamage = flatR()/(1 + (enemyOne.getEnemyOneMagicResistance() / 100f));
-
-        return realDamage;
-
-    }*/
-/*
-
-    }*/
-/*
-    public double flatW(){
-
-        double wBaseDamage = wDamage.getValues().get(getWLevel()-1);
-        double scalingW = getWScalingAD().getValues().get(0);
-        double danno = (bonusAD() * scalingW) /100;
-        double dannoFinale = wBaseDamage + danno;
-
-        return dannoFinale;
-    }
-
-
-
-    public double flatR(){
-
-        double rBaseDamage = rDamage.getValues().get(getRLevel()-1);
-        double scalingR = getRScalingAD().getValues().get(0);
-        double danno = (bonusAD() * scalingR) /100;
-        double dannoFinale = rBaseDamage + danno;
-
-        return dannoFinale;
-    }
-
-
-}*/
-
-
-
-

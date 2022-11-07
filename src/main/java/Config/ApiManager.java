@@ -8,6 +8,7 @@ import java.net.URL;
 public final class ApiManager {
 
     public static String makeApiCall(String url) throws IOException {
+
         try{
             //getting url
             URL httpUrl = new URL(url);

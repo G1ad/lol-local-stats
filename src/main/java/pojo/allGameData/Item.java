@@ -9,8 +9,6 @@ import lombok.Setter;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Item {
 
-
-
     public String displayName;
     public int itemID;
     public int count;

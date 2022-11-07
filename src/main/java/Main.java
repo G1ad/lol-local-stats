@@ -7,18 +7,19 @@ import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 
 public class Main {
-    public static void main(String[] args) throws IOException, NoSuchAlgorithmException, KeyManagementException {
+    public static void main(String[] args) throws IOException, NoSuchAlgorithmException, KeyManagementException, InterruptedException {
 
         SSLUtil.turnOffSslChecking();
         Orianna.setDefaultRegion(Region.EUROPE_WEST);
 
         Game game = new Game();
-        Calculator calc = new Calculator();
-        game.updateGame();
-        for(int i = 0; i < game.getAllPlayers().size(); i++) {
-            System.out.println(game.getAllPlayers().get(i).getChampionName() + " " +i);
-        }
+        Calculator calc = new Calculator(game);
 
+        game.updateGame();
+
+           for(int i = 0; i < game.getAllPlayers().size(); i++) {
+               System.out.println(calc.totalDamage(i));
+           }
     }
 }
 

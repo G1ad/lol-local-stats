@@ -26,6 +26,5 @@ public class AllPlayers {
     public String team;
 
 
-
     public AllPlayers() throws IOException {}
 }
