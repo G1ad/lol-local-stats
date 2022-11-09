@@ -1,31 +1,28 @@
 package pojo.ItemStats;
 
-import com.google.gson.annotations.SerializedName;
-import lombok.Getter;
+import com.fasterxml.jackson.annotation.JsonAlias;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Data;
 
-@Getter
+@Data
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Omnivamp {
 
     private double flat;
     private double percent;
-    @SerializedName(value = "perLevel", alternate = "per_level")
+    @JsonProperty("perLevel")
+    @JsonAlias("per_level")
     private double perLevel;
-    @SerializedName(value = "percentPerLevel", alternate = "percent_per_level")
+    @JsonProperty("percentPerLevel")
+    @JsonAlias("percent_per_level")
     private double percentPerLevel;
-    @SerializedName(value = "percentBase", alternate = "percent_base")
+    @JsonProperty("percentBase")
+    @JsonAlias("percent_base")
     private double percentBase;
-    @SerializedName(value = "percentBonus", alternate = "percent_bonus")
+    @JsonProperty("percentBonus")
+    @JsonAlias("percent_bonus")
     private double percentBonus;
 
-    @Override
-    public String toString() {
-        return "Omnivamp{" +
-                "flat=" + flat +
-                ", percent=" + percent +
-                ", perLevel=" + perLevel +
-                ", percentPerLevel=" + percentPerLevel +
-                ", percentBase=" + percentBase +
-                ", percentBonus=" + percentBonus +
-                '}';
-    }
+
 }

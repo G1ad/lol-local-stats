@@ -1,8 +1,11 @@
 package pojo.ItemStats;
 
-import lombok.Getter;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.Data;
 
-@Getter
+
+@Data
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class CriticalStrikeChance {
 
     private double flat;
@@ -12,15 +15,4 @@ public class CriticalStrikeChance {
     private double percentBase;
     private double percentBonus;
 
-    @Override
-    public String toString() {
-        return "CriticalStrikeChance{" +
-                "flat=" + flat +
-                ", percent=" + percent +
-                ", perLevel=" + perLevel +
-                ", percentPerLevel=" + percentPerLevel +
-                ", percentBase=" + percentBase +
-                ", percentBonus=" + percentBonus +
-                '}';
-    }
 }

@@ -1,8 +1,10 @@
 package pojo.ItemStats;
 
-import lombok.Getter;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.Data;
 
-@Getter
+@Data
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class GoldPer10 {
 
     private double flat;
@@ -12,15 +14,4 @@ public class GoldPer10 {
     private double percentBase;
     private double percentBonus;
 
-    @Override
-    public String toString() {
-        return "GoldPer10{" +
-                "flat=" + flat +
-                ", percent=" + percent +
-                ", perLevel=" + perLevel +
-                ", percentPerLevel=" + percentPerLevel +
-                ", percentBase=" + percentBase +
-                ", percentBonus=" + percentBonus +
-                '}';
-    }
 }

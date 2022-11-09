@@ -1,8 +1,10 @@
 package pojo.ItemStats;
 
-import lombok.Getter;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.Data;
 
-@Getter
+@Data
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Armor {
 
     private double flat;
@@ -12,15 +14,5 @@ public class Armor {
     private double percentBase;
     private double percentBonus;
 
-    @Override
-    public String toString() {
-        return "Armor{" +
-                "flat=" + flat +
-                ", percent=" + percent +
-                ", perLevel=" + perLevel +
-                ", percentPerLevel=" + percentPerLevel +
-                ", percentBase=" + percentBase +
-                ", percentBonus=" + percentBonus +
-                '}';
-    }
+
 }
